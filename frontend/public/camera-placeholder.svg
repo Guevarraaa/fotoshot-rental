@@ -1,0 +1,10 @@
+<svg width="900" height="675" viewBox="0 0 900 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="675" fill="#f5f5f4"/>
+  <rect x="210" y="205" width="480" height="285" rx="28" fill="#1c1917"/>
+  <rect x="285" y="160" width="165" height="70" rx="18" fill="#292524"/>
+  <circle cx="450" cy="350" r="105" fill="#fafaf9"/>
+  <circle cx="450" cy="350" r="72" fill="#57534e"/>
+  <circle cx="450" cy="350" r="38" fill="#1c1917"/>
+  <circle cx="645" cy="250" r="24" fill="#fafaf9"/>
+  <text x="450" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1c1917">FotoShot Camera Photo</text>
+</svg>
