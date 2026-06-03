@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { submitBookingAction, type BookingActionState } from "@/app/book/actions";
 import {
   cameras,
   pickupLocations,
@@ -23,7 +24,15 @@ export function BookingForm() {
   const [endDate, setEndDate] = useState(today);
   const [filmBoxes, setFilmBoxes] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("gcash");
-  const [submitted, setSubmitted] = useState(false);
+    const initialState: BookingActionState = {
+    ok: false,
+    message: "",
+  };
+
+  const [state, formAction, isPending] = useActionState(
+    submitBookingAction,
+    initialState,
+  );
 
   const selectedCamera =
     cameras.find((camera) => camera.slug === cameraSlug) ?? cameras[0];
@@ -33,36 +42,32 @@ export function BookingForm() {
     [selectedCamera, rentalDays, filmBoxes],
   );
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitted(true);
-  }
+  
 
-  if (submitted) {
+   if (state.ok) {
     return (
       <section className="rounded-lg border border-green-200 bg-green-50 p-6">
         <p className="text-sm font-semibold uppercase tracking-wide text-green-700">
           Pending Review
         </p>
         <h2 className="mt-2 text-2xl font-bold text-green-950">
-          Booking UI submitted
+          Booking submitted for review
         </h2>
         <p className="mt-3 text-sm leading-6 text-green-900">
-          Sprint 1 keeps this as a frontend confirmation. Supabase booking
-          creation, file upload, and reference number generation will be wired in
-          the next integration sprint.
+          Your booking reference number is {state.referenceNumber}. Admin will verify your documents and payment manually.
         </p>
       </section>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+  <form action={formAction} className="space-y-8">
       <BookingSection number={1} title="Select camera and dates">
         <div className="grid gap-4 md:grid-cols-3">
           <label className="block">
             <span className="text-sm font-semibold text-stone-900">Camera</span>
             <select
+              name="camera_slug"
               value={cameraSlug}
               onChange={(event) => setCameraSlug(event.target.value)}
               className="mt-2 w-full rounded-md border border-stone-300 px-3 py-3 text-sm"
@@ -79,6 +84,7 @@ export function BookingForm() {
               Rental start date
             </span>
             <input
+            name="rental_start_date"
               type="date"
               required
               value={startDate}
@@ -91,6 +97,7 @@ export function BookingForm() {
               Rental end date
             </span>
             <input
+            name="rental_end_date"
               type="date"
               required
               value={endDate}
@@ -106,6 +113,7 @@ export function BookingForm() {
               Instax film boxes
             </span>
             <input
+            name="instax_film_boxes"
               type="number"
               min="0"
               value={filmBoxes}
@@ -260,12 +268,18 @@ export function BookingForm() {
           <SummaryItem label="Pending expiry" value={rentalRules.pendingExpiry} />
           <SummaryItem label="Total amount" value={formatPeso(total.totalAmount)} strong />
         </div>
-        <button
-          type="submit"
-          className="mt-5 w-full rounded-md bg-stone-950 px-5 py-4 text-sm font-bold text-white transition hover:bg-stone-800 md:w-auto"
-        >
-          Submit Booking for Review
-        </button>
+        {state.message && !state.ok ? (
+  <p className="mt-5 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+    {state.message}
+  </p>
+) : null}
+      <button
+  type="submit"
+  disabled={isPending}
+  className="mt-5 w-full rounded-md bg-stone-950 px-5 py-4 text-sm font-bold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400 md:w-auto"
+>
+  {isPending ? "Submitting..." : "Submit Booking for Review"}
+</button>
       </BookingSection>
     </form>
   );

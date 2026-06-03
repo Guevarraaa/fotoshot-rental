@@ -55,6 +55,7 @@ export const uploadRequirements = [
 
 export const cameras: Camera[] = [
   {
+    id: "ed46aa6b-60cf-4909-94e7-1fb1abab7e02",
     slug: "canon-eos-m100",
     name: "Canon EOS M100",
     shortName: "Canon M100",
@@ -75,6 +76,7 @@ export const cameras: Camera[] = [
     ],
   },
   {
+    id: "2162dd1a-e8f9-483d-9002-8e85702462ea",
     slug: "instax-mini-11",
     name: "Instax Mini 11",
     shortName: "Instax Mini",
@@ -94,6 +96,7 @@ export const cameras: Camera[] = [
     ],
   },
   {
+    id: "b6b6452c-0c3c-467d-a1d2-105477bbbeca",
     slug: "kodak-pixpro-wpz2",
     name: "Kodak Pixpro WPZ2",
     shortName: "Kodak WPZ2",
@@ -123,4 +126,3 @@ export const bookingStatuses = [
   "Returned",
   "Completed",
 ];
-

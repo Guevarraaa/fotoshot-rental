@@ -24,7 +24,7 @@ export function FileUploadField({
       </label>
       <input
         id={inputId}
-        name={name}
+        data-upload-name={name}
         type="file"
         required={required}
         accept=".jpg,.jpeg,.png,.pdf"
@@ -40,4 +40,3 @@ export function FileUploadField({
     </div>
   );
 }
-
