@@ -99,7 +99,7 @@ export const cameras: Camera[] = [
     shortName: "Kodak WPZ2",
     description:
       "A rugged waterproof camera for beach days, pool trips, and outdoor adventures.",
-    imagePath: "/cameras/kodak-pixpro-wpz2/main.jfif",
+    imagePath: "/cameras/kodak-pixpro-wpz2/kodak-pixpro-wpz2.jfif",
     priceOneToThreeDays: 399,
     priceFourPlusDays: 349,
     securityDeposit: 1000,
