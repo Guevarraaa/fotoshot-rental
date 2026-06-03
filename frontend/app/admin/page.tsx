@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { bookingStatuses, cameras } from "@/lib/constants";
 
 const metricCards = [
@@ -9,7 +11,26 @@ const metricCards = [
   "Most booked camera",
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const supabase = await createServerSupabaseClient();
+
+  if (!supabase) {
+    redirect("/admin/login");
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/admin/login");
+  }
+
+    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
+
+  if (adminError || !isAdmin) {
+    redirect("/admin/login");
+  }
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
