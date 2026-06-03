@@ -1,16 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { bookingStatuses, cameras } from "@/lib/constants";
-
-const metricCards = [
-  "Pending bookings",
-  "Payment submitted",
-  "Approved bookings",
-  "Released rentals",
-  "Returned today",
-  "Most booked camera",
-];
+import { bookingStatuses } from "@/lib/constants";
 
 export default async function AdminDashboardPage() {
   const supabase = await createServerSupabaseClient();
@@ -32,6 +23,56 @@ export default async function AdminDashboardPage() {
   if (adminError || !isAdmin) {
     redirect("/admin/login");
   }
+    const { data: bookings } = await supabase
+    .from("bookings")
+    .select(
+      `
+      id,
+      reference_number,
+      rental_start_date,
+      rental_end_date,
+      payment_status,
+      booking_status,
+      total_amount,
+      created_at,
+      customers (
+        full_name,
+        contact_number
+      ),
+      cameras (
+        name
+      )
+    `,
+    )
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const bookingRows = bookings ?? [];
+
+  const pendingCount = bookingRows.filter(
+    (booking) => booking.booking_status === "pending_review",
+  ).length;
+
+  const paymentSubmittedCount = bookingRows.filter(
+    (booking) => booking.payment_status === "payment_submitted",
+  ).length;
+
+  const approvedCount = bookingRows.filter(
+    (booking) => booking.booking_status === "approved",
+  ).length;
+
+  const releasedCount = bookingRows.filter(
+    (booking) => booking.booking_status === "released",
+  ).length;
+
+  const returnedTodayCount = bookingRows.filter((booking) => {
+    if (booking.booking_status !== "returned") {
+      return false;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    return booking.created_at?.startsWith(today);
+  }).length;
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -52,17 +93,12 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {metricCards.map((card, index) => (
-          <div
-            key={card}
-            className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm"
-          >
-            <p className="text-sm text-stone-500">{card}</p>
-            <p className="mt-2 text-3xl font-bold text-stone-950">
-              {index === 5 ? cameras[0].shortName : 0}
-            </p>
-          </div>
-        ))}
+        <MetricCard label="Pending bookings" value={pendingCount} />
+        <MetricCard label="Payment submitted" value={paymentSubmittedCount} />
+        <MetricCard label="Approved bookings" value={approvedCount} />
+        <MetricCard label="Released rentals" value={releasedCount} />
+        <MetricCard label="Returned today" value={returnedTodayCount} />
+        <MetricCard label="Latest booking count" value={bookingRows.length} />
       </div>
 
       <div className="mt-8 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
@@ -100,33 +136,74 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-stone-200">
-                <td className="px-5 py-4 font-semibold text-stone-950">
-                  FS-2026-0001
-                </td>
-                <td className="px-5 py-4 text-stone-600">Sample renter</td>
-                <td className="px-5 py-4 text-stone-600">
-                  Canon EOS M100
-                </td>
-                <td className="px-5 py-4 text-stone-600">
-                  Payment Submitted
-                </td>
-                <td className="px-5 py-4 text-stone-600">
-                  Pending Review
-                </td>
-                <td className="px-5 py-4">
-                  <button
-                    type="button"
-                    className="rounded-md border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-800"
-                  >
-                    View Placeholder
-                  </button>
-                </td>
-              </tr>
+              {bookingRows.length ? (
+                bookingRows.map((booking) => {
+                  const customer = Array.isArray(booking.customers)
+                    ? booking.customers[0]
+                    : booking.customers;
+                  const camera = Array.isArray(booking.cameras)
+                    ? booking.cameras[0]
+                    : booking.cameras;
+
+                  return (
+                    <tr key={booking.id} className="border-t border-stone-200">
+                      <td className="px-5 py-4 font-semibold text-stone-950">
+                        {booking.reference_number}
+                      </td>
+                      <td className="px-5 py-4 text-stone-600">
+                        {customer?.full_name ?? "Unknown renter"}
+                      </td>
+                      <td className="px-5 py-4 text-stone-600">
+                        {camera?.name ?? "Unknown camera"}
+                      </td>
+                      <td className="px-5 py-4 text-stone-600">
+                        {formatStatus(booking.payment_status)}
+                      </td>
+                      <td className="px-5 py-4 text-stone-600">
+                        {formatStatus(booking.booking_status)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          type="button"
+                          className="rounded-md border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-800"
+                        >
+                          View Placeholder
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr className="border-t border-stone-200">
+                  <td className="px-5 py-6 text-center text-stone-500" colSpan={6}>
+                    No bookings yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
     </section>
   );
+}
+
+function MetricCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+      <p className="text-sm text-stone-500">{label}</p>
+      <p className="mt-2 text-3xl font-bold text-stone-950">{value}</p>
+    </div>
+  );
+}
+
+function formatStatus(status: string | null) {
+  if (!status) {
+    return "Unknown";
+  }
+
+  return status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
