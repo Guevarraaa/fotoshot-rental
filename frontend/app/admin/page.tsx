@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { bookingStatuses, cameras } from "@/lib/constants";
 
@@ -46,6 +47,8 @@ export default async function AdminDashboardPage() {
             booking tables, search, filters, and admin actions come later.
           </p>
         </div>
+        <AdminLogoutButton />
+
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
