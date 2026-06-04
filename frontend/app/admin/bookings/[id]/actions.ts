@@ -114,3 +114,41 @@ export async function rejectBookingAction(formData: FormData) {
   revalidatePath(`/admin/bookings/${bookingId}`);
   redirect(`/admin/bookings/${bookingId}`);
 }
+
+export async function markReleasedAction(formData: FormData) {
+  const supabase = await requireAdmin();
+  const bookingId = String(formData.get("booking_id") ?? "");
+
+  if (!bookingId) {
+    return;
+  }
+
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .select("booking_status")
+    .eq("id", bookingId)
+    .single();
+
+  if (bookingError) {
+    throw new Error(bookingError.message);
+  }
+
+  if (booking.booking_status !== "approved") {
+    throw new Error("Only approved bookings can be marked as released.");
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      booking_status: "released",
+    })
+    .eq("id", bookingId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
+  redirect(`/admin/bookings/${bookingId}`);
+}
