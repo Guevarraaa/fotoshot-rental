@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   approveBookingAction,
   markReleasedAction,
+  markReturnedAction,
   markPaymentVerifiedAction,
   rejectBookingAction,
 } from "./actions";
@@ -174,6 +175,17 @@ export default async function AdminBookingDetailsPage({
                 className="w-full rounded-md bg-blue-700 px-4 py-3 text-sm font-bold text-white hover:bg-blue-800"
               >
                 Mark Released
+              </button>
+            </form>
+          ) : null}
+          {booking.booking_status === "released" ? (
+            <form action={markReturnedAction} className="mt-4">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md bg-purple-700 px-4 py-3 text-sm font-bold text-white hover:bg-purple-800"
+              >
+                Mark Returned
               </button>
             </form>
           ) : null}
