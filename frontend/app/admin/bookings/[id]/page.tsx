@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { approveBookingAction, markPaymentVerifiedAction } from "./actions";
+import {
+  approveBookingAction,
+  markPaymentVerifiedAction,
+  rejectBookingAction,
+} from "./actions";
 
 type AdminBookingDetailsPageProps = {
   params: Promise<{
@@ -158,6 +162,19 @@ export default async function AdminBookingDetailsPage({
                 className="w-full rounded-md bg-green-700 px-4 py-3 text-sm font-bold text-white hover:bg-green-800"
               >
                 Approve Booking
+              </button>
+            </form>
+          ) : null}
+          {!["completed", "rejected", "cancelled"].includes(
+            booking.booking_status,
+          ) ? (
+            <form action={rejectBookingAction} className="mt-3">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md border border-red-300 px-4 py-3 text-sm font-bold text-red-700 hover:bg-red-50"
+              >
+                Reject Booking
               </button>
             </form>
           ) : null}
