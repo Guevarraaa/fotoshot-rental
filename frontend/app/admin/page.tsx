@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -163,12 +164,12 @@ export default async function AdminDashboardPage() {
                         {formatStatus(booking.booking_status)}
                       </td>
                       <td className="px-5 py-4">
-                        <button
-                          type="button"
-                          className="rounded-md border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-800"
-                        >
-                          View Placeholder
-                        </button>
+                       <Link
+  href={`/admin/bookings/${booking.id}`}
+  className="rounded-md border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-50"
+>
+  View Details
+</Link>
                       </td>
                     </tr>
                   );
