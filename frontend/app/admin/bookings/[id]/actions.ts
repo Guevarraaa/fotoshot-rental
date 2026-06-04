@@ -52,3 +52,41 @@ export async function markPaymentVerifiedAction(formData: FormData) {
   revalidatePath(`/admin/bookings/${bookingId}`);
   redirect(`/admin/bookings/${bookingId}`);
 }
+
+export async function approveBookingAction(formData: FormData) {
+  const supabase = await requireAdmin();
+  const bookingId = String(formData.get("booking_id") ?? "");
+
+  if (!bookingId) {
+    return;
+  }
+
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .select("payment_status")
+    .eq("id", bookingId)
+    .single();
+
+  if (bookingError) {
+    throw new Error(bookingError.message);
+  }
+
+  if (booking.payment_status !== "verified") {
+    throw new Error("Payment must be verified before approving this booking.");
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      booking_status: "approved",
+    })
+    .eq("id", bookingId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
+  redirect(`/admin/bookings/${bookingId}`);
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { markPaymentVerifiedAction } from "./actions";
+import { approveBookingAction, markPaymentVerifiedAction } from "./actions";
 
 type AdminBookingDetailsPageProps = {
   params: Promise<{
@@ -149,6 +149,18 @@ export default async function AdminBookingDetailsPage({
             label="Payment method"
             value={formatStatus(booking.payment_method)}
           />
+          {booking.payment_status === "verified" &&
+          booking.booking_status !== "approved" ? (
+            <form action={approveBookingAction} className="mt-4">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md bg-green-700 px-4 py-3 text-sm font-bold text-white hover:bg-green-800"
+              >
+                Approve Booking
+              </button>
+            </form>
+          ) : null}
         </DetailCard>
 
         <DetailCard title="Payment">
