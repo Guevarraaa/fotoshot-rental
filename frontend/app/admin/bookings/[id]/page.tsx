@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { markPaymentVerifiedAction } from "./actions";
 
 type AdminBookingDetailsPageProps = {
   params: Promise<{
@@ -161,6 +162,15 @@ export default async function AdminBookingDetailsPage({
           <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
             Payment screenshot preview will be added when file uploads are wired.
           </div>
+          <form action={markPaymentVerifiedAction} className="mt-4">
+            <input type="hidden" name="booking_id" value={booking.id} />
+            <button
+              type="submit"
+              className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+            >
+              Mark Payment Verified
+            </button>
+          </form>
         </DetailCard>
 
         <DetailCard title="Renter Information">
