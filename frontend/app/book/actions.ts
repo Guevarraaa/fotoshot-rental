@@ -7,6 +7,7 @@ import { createPublicServerSupabaseClient } from "@/lib/supabase/public-server";
 export type BookingActionState = {
   ok: boolean;
   message: string;
+  bookingId?: string;
   referenceNumber?: string;
 };
 
@@ -146,6 +147,7 @@ export async function submitBookingAction(
   return {
     ok: true,
     message: "Booking submitted for review.",
+    bookingId: booking.id,
     referenceNumber,
   };
 }

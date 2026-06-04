@@ -14,6 +14,7 @@ import {
   formatPeso,
 } from "@/lib/pricing";
 import { FileUploadField } from "./file-upload-field";
+import { PaymentProofUploader } from "./payment-proof-uploader";
 import { PaymentInstructions } from "./payment-instructions";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -56,6 +57,9 @@ export function BookingForm() {
         <p className="mt-3 text-sm leading-6 text-green-900">
           Your booking reference number is {state.referenceNumber}. Admin will verify your documents and payment manually.
         </p>
+        {state.bookingId ? (
+          <PaymentProofUploader bookingId={state.bookingId} />
+        ) : null}
       </section>
     );
   }
@@ -352,4 +356,3 @@ function SummaryItem({
     </div>
   );
 }
-
