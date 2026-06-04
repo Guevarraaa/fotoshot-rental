@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   approveBookingAction,
+  markCompletedAction,
   markReleasedAction,
   markReturnedAction,
   markPaymentVerifiedAction,
@@ -186,6 +187,17 @@ export default async function AdminBookingDetailsPage({
                 className="w-full rounded-md bg-purple-700 px-4 py-3 text-sm font-bold text-white hover:bg-purple-800"
               >
                 Mark Returned
+              </button>
+            </form>
+          ) : null}
+          {booking.booking_status === "returned" ? (
+            <form action={markCompletedAction} className="mt-4">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+              >
+                Mark Completed
               </button>
             </form>
           ) : null}
