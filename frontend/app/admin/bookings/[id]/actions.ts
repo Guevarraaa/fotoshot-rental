@@ -36,7 +36,7 @@ export async function markPaymentVerifiedAction(formData: FormData) {
     return;
   }
 
-  await supabase
+  const { error } = await supabase
     .from("bookings")
     .update({
       payment_status: "verified",
@@ -44,6 +44,11 @@ export async function markPaymentVerifiedAction(formData: FormData) {
     })
     .eq("id", bookingId);
 
+  if (error) {
+    throw new Error(error.message);
+  }
+
   revalidatePath("/admin");
   revalidatePath(`/admin/bookings/${bookingId}`);
+  redirect(`/admin/bookings/${bookingId}`);
 }
