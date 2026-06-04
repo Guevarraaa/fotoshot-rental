@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   approveBookingAction,
+  cancelBookingAction,
   markCompletedAction,
   markReleasedAction,
   markReturnedAction,
@@ -211,6 +212,17 @@ export default async function AdminBookingDetailsPage({
                 className="w-full rounded-md border border-red-300 px-4 py-3 text-sm font-bold text-red-700 hover:bg-red-50"
               >
                 Reject Booking
+              </button>
+            </form>
+          ) : null}
+          {!["completed", "cancelled"].includes(booking.booking_status) ? (
+            <form action={cancelBookingAction} className="mt-3">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md border border-stone-300 px-4 py-3 text-sm font-bold text-stone-700 hover:bg-stone-50"
+              >
+                Cancel Booking
               </button>
             </form>
           ) : null}
