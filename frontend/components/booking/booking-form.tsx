@@ -59,7 +59,11 @@ export function BookingForm() {
         </p>
         {state.bookingId ? (
           <PaymentProofUploader bookingId={state.bookingId} />
-        ) : null}
+        ) : (
+          <p className="mt-5 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
+            Booking was created, but the payment upload ID was not returned. Refresh and try submitting a new test booking.
+          </p>
+        )}
       </section>
     );
   }
