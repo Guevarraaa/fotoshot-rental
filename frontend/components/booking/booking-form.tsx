@@ -2,6 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { submitBookingAction, type BookingActionState } from "@/app/book/actions";
+import { BookingDocumentsUploader } from "./booking-documents-uploader";
 import {
   cameras,
   pickupLocations,
@@ -58,7 +59,10 @@ export function BookingForm() {
           Your booking reference number is {state.referenceNumber}. Admin will verify your documents and payment manually.
         </p>
         {state.bookingId ? (
-          <PaymentProofUploader bookingId={state.bookingId} />
+          <>
+            <PaymentProofUploader bookingId={state.bookingId} />
+            <BookingDocumentsUploader bookingId={state.bookingId} />
+          </>
         ) : (
           <p className="mt-5 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
             Booking was created, but the payment upload ID was not returned. Refresh and try submitting a new test booking.

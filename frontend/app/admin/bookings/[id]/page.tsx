@@ -118,11 +118,26 @@ export default async function AdminBookingDetailsPage({
   const paymentProof = bookingFiles.find(
     (file) => file.file_type === "payment_screenshot",
   );
+  const documentFiles = bookingFiles.filter(
+    (file) => file.file_type !== "payment_screenshot",
+  );
   const { data: paymentProofSignedUrl } = paymentProof
     ? await supabase.storage
         .from("payment-proofs")
         .createSignedUrl(paymentProof.file_path, 60 * 10)
     : { data: null };
+  const documentLinks = await Promise.all(
+    documentFiles.map(async (file) => {
+      const { data } = await supabase.storage
+        .from("booking-documents")
+        .createSignedUrl(file.file_path, 60 * 10);
+
+      return {
+        ...file,
+        signedUrl: data?.signedUrl ?? null,
+      };
+    }),
+  );
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
@@ -299,10 +314,27 @@ export default async function AdminBookingDetailsPage({
         <DetailCard title="Agreement">
           <DetailRow label="Printed name" value={booking.printed_name} />
           <DetailRow label="Signed date" value={booking.signed_date} />
-          <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
-            Digital signature and required document previews will be added when
-            private file uploads are wired.
-          </div>
+          {documentLinks.length ? (
+            <div className="mt-4 space-y-2">
+              {documentLinks.map((file) =>
+                file.signedUrl ? (
+                  <a
+                    key={file.file_type}
+                    href={file.signedUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-semibold text-green-800 hover:bg-green-100"
+                  >
+                    {formatStatus(file.file_type)}: {file.original_file_name}
+                  </a>
+                ) : null,
+              )}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
+              No required documents uploaded yet.
+            </div>
+          )}
         </DetailCard>
       </div>
     </section>
