@@ -14,7 +14,6 @@ import {
   calculateRentalDays,
   formatPeso,
 } from "@/lib/pricing";
-import { FileUploadField } from "./file-upload-field";
 import { PaymentProofUploader } from "./payment-proof-uploader";
 import { PaymentInstructions } from "./payment-instructions";
 
@@ -198,10 +197,20 @@ export function BookingForm() {
         </div>
       </BookingSection>
 
-      <BookingSection number={5} title="Required uploads">
-        <div className="grid gap-4 md:grid-cols-2">
+      <BookingSection number={5} title="Required documents">
+        <p className="text-sm leading-6 text-stone-600">
+          After you submit this booking request, FotoShot will show your booking
+          reference number and the secure upload section for these required
+          documents.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
           {uploadRequirements.map((upload) => (
-            <FileUploadField key={upload.id} name={upload.id} label={upload.label} />
+            <div
+              key={upload.id}
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm font-semibold text-stone-800"
+            >
+              {upload.label}
+            </div>
           ))}
         </div>
       </BookingSection>
@@ -243,7 +252,7 @@ export function BookingForm() {
         </div>
       </BookingSection>
 
-      <BookingSection number={7} title="Payment method and screenshot">
+      <BookingSection number={7} title="Payment method">
         <PaymentInstructions />
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           {["gcash", "maya", "cash"].map((method) => (
@@ -263,13 +272,10 @@ export function BookingForm() {
             </label>
           ))}
         </div>
-        <div className="mt-4">
-          <FileUploadField
-            name="payment_screenshot"
-            label="Payment screenshot"
-            required={paymentMethod !== "cash"}
-          />
-        </div>
+        <p className="mt-4 rounded-md bg-stone-50 px-3 py-2 text-sm text-stone-600">
+          Upload your payment screenshot after submitting the booking request,
+          when your booking reference number is shown.
+        </p>
       </BookingSection>
 
       <BookingSection number={8} title="Review and submit">
