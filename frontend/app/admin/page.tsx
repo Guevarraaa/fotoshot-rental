@@ -33,6 +33,7 @@ export default async function AdminDashboardPage() {
       rental_start_date,
       rental_end_date,
       payment_status,
+      document_status,
       booking_status,
       total_amount,
       created_at,
@@ -56,6 +57,10 @@ export default async function AdminDashboardPage() {
 
   const paymentSubmittedCount = bookingRows.filter(
     (booking) => booking.payment_status === "payment_submitted",
+  ).length;
+
+  const documentsPendingCount = bookingRows.filter(
+    (booking) => booking.document_status === "pending",
   ).length;
 
   const approvedCount = bookingRows.filter(
@@ -82,11 +87,11 @@ export default async function AdminDashboardPage() {
             Admin dashboard
           </p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight text-stone-950">
-            Booking review placeholders
+            Booking review dashboard
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-600">
-            Sprint 1 shows status and dashboard placeholders. Supabase Auth,
-            booking tables, search, filters, and admin actions come later.
+            Review payments, documents, booking statuses, and rental progress
+            from the latest FotoShot booking requests.
           </p>
         </div>
         <AdminLogoutButton />
@@ -96,10 +101,10 @@ export default async function AdminDashboardPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Pending bookings" value={pendingCount} />
         <MetricCard label="Payment submitted" value={paymentSubmittedCount} />
+        <MetricCard label="Documents pending" value={documentsPendingCount} />
         <MetricCard label="Approved bookings" value={approvedCount} />
         <MetricCard label="Released rentals" value={releasedCount} />
         <MetricCard label="Returned today" value={returnedTodayCount} />
-        <MetricCard label="Latest booking count" value={bookingRows.length} />
       </div>
 
       <div className="mt-8 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
@@ -121,7 +126,7 @@ export default async function AdminDashboardPage() {
       <div className="mt-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
         <div className="border-b border-stone-200 p-5">
           <h2 className="text-xl font-bold text-stone-950">
-            Bookings table placeholder
+            Latest bookings
           </h2>
         </div>
         <div className="overflow-x-auto">
@@ -132,6 +137,7 @@ export default async function AdminDashboardPage() {
                 <th className="px-5 py-3">Customer</th>
                 <th className="px-5 py-3">Camera</th>
                 <th className="px-5 py-3">Payment</th>
+                <th className="px-5 py-3">Documents</th>
                 <th className="px-5 py-3">Booking Status</th>
                 <th className="px-5 py-3">Action</th>
               </tr>
@@ -161,6 +167,9 @@ export default async function AdminDashboardPage() {
                         {formatStatus(booking.payment_status)}
                       </td>
                       <td className="px-5 py-4 text-stone-600">
+                        <StatusPill status={booking.document_status} />
+                      </td>
+                      <td className="px-5 py-4 text-stone-600">
                         {formatStatus(booking.booking_status)}
                       </td>
                       <td className="px-5 py-4">
@@ -176,7 +185,7 @@ export default async function AdminDashboardPage() {
                 })
               ) : (
                 <tr className="border-t border-stone-200">
-                  <td className="px-5 py-6 text-center text-stone-500" colSpan={6}>
+                  <td className="px-5 py-6 text-center text-stone-500" colSpan={7}>
                     No bookings yet.
                   </td>
                 </tr>
@@ -196,6 +205,27 @@ function MetricCard({ label, value }: { label: string; value: number }) {
       <p className="mt-2 text-3xl font-bold text-stone-950">{value}</p>
     </div>
   );
+}
+
+function StatusPill({ status }: { status: string | null }) {
+  const baseClass =
+    "inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide";
+
+  if (status === "verified") {
+    return (
+      <span className={`${baseClass} bg-green-50 text-green-700`}>
+        Verified
+      </span>
+    );
+  }
+
+  if (status === "rejected") {
+    return (
+      <span className={`${baseClass} bg-red-50 text-red-700`}>Rejected</span>
+    );
+  }
+
+  return <span className={`${baseClass} bg-yellow-50 text-yellow-700`}>Pending</span>;
 }
 
 function formatStatus(status: string | null) {
