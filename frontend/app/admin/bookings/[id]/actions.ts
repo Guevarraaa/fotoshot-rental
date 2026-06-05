@@ -77,6 +77,30 @@ export async function markDocumentsVerifiedAction(formData: FormData) {
   redirect(`/admin/bookings/${bookingId}`);
 }
 
+export async function rejectDocumentsAction(formData: FormData) {
+  const supabase = await requireAdmin();
+  const bookingId = String(formData.get("booking_id") ?? "");
+
+  if (!bookingId) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      document_status: "rejected",
+    })
+    .eq("id", bookingId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/bookings/${bookingId}`);
+  redirect(`/admin/bookings/${bookingId}`);
+}
+
 export async function approveBookingAction(formData: FormData) {
   const supabase = await requireAdmin();
   const bookingId = String(formData.get("booking_id") ?? "");

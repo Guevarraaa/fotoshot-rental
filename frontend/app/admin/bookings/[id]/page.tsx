@@ -9,6 +9,7 @@ import {
   markReleasedAction,
   markReturnedAction,
   markPaymentVerifiedAction,
+  rejectDocumentsAction,
   rejectBookingAction,
 } from "./actions";
 
@@ -322,15 +323,26 @@ export default async function AdminBookingDetailsPage({
           <DetailRow label="Printed name" value={booking.printed_name} />
           <DetailRow label="Signed date" value={booking.signed_date} />
           {booking.document_status !== "verified" ? (
-            <form action={markDocumentsVerifiedAction} className="mt-4">
-              <input type="hidden" name="booking_id" value={booking.id} />
-              <button
-                type="submit"
-                className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
-              >
-                Mark Documents Verified
-              </button>
-            </form>
+            <div className="mt-4 space-y-3">
+              <form action={markDocumentsVerifiedAction}>
+                <input type="hidden" name="booking_id" value={booking.id} />
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+                >
+                  Mark Documents Verified
+                </button>
+              </form>
+              <form action={rejectDocumentsAction}>
+                <input type="hidden" name="booking_id" value={booking.id} />
+                <button
+                  type="submit"
+                  className="w-full rounded-md border border-red-300 px-4 py-3 text-sm font-bold text-red-700 hover:bg-red-50"
+                >
+                  Reject Documents
+                </button>
+              </form>
+            </div>
           ) : (
             <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800">
               Documents verified
