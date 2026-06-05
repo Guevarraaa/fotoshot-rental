@@ -82,6 +82,11 @@ export default async function AdminBookingDetailsPage({
       student_information (
         school_name,
         year_level_course
+      ),
+      booking_files (
+        file_type,
+        file_path,
+        original_file_name
       )
     `,
     )
@@ -107,6 +112,17 @@ export default async function AdminBookingDetailsPage({
   const studentInfo = Array.isArray(booking.student_information)
     ? booking.student_information[0]
     : booking.student_information;
+  const bookingFiles = Array.isArray(booking.booking_files)
+    ? booking.booking_files
+    : [];
+  const paymentProof = bookingFiles.find(
+    (file) => file.file_type === "payment_screenshot",
+  );
+  const { data: paymentProofSignedUrl } = paymentProof
+    ? await supabase.storage
+        .from("payment-proofs")
+        .createSignedUrl(paymentProof.file_path, 60 * 10)
+    : { data: null };
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
@@ -236,9 +252,20 @@ export default async function AdminBookingDetailsPage({
           />
           <DetailRow label="Add-ons" value={formatPeso(booking.addon_total)} />
           <DetailRow label="Total amount" value={formatPeso(booking.total_amount)} />
-          <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
-            Payment screenshot preview will be added when file uploads are wired.
-          </div>
+          {paymentProof && paymentProofSignedUrl?.signedUrl ? (
+            <a
+              href={paymentProofSignedUrl.signedUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 block rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800 hover:bg-green-100"
+            >
+              View payment proof: {paymentProof.original_file_name}
+            </a>
+          ) : (
+            <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
+              No payment screenshot uploaded yet.
+            </div>
+          )}
           <form action={markPaymentVerifiedAction} className="mt-4">
             <input type="hidden" name="booking_id" value={booking.id} />
             <button
