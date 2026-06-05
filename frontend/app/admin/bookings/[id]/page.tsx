@@ -5,6 +5,7 @@ import {
   approveBookingAction,
   cancelBookingAction,
   markCompletedAction,
+  markDocumentsVerifiedAction,
   markReleasedAction,
   markReturnedAction,
   markPaymentVerifiedAction,
@@ -59,6 +60,7 @@ export default async function AdminBookingDetailsPage({
       total_amount,
       payment_method,
       payment_status,
+      document_status,
       booking_status,
       pickup_location_text,
       printed_name,
@@ -185,10 +187,15 @@ export default async function AdminBookingDetailsPage({
             value={formatStatus(booking.payment_status)}
           />
           <DetailRow
+            label="Document status"
+            value={formatStatus(booking.document_status)}
+          />
+          <DetailRow
             label="Payment method"
             value={formatStatus(booking.payment_method)}
           />
           {booking.payment_status === "verified" &&
+          booking.document_status === "verified" &&
           booking.booking_status !== "approved" ? (
             <form action={approveBookingAction} className="mt-4">
               <input type="hidden" name="booking_id" value={booking.id} />
@@ -314,6 +321,21 @@ export default async function AdminBookingDetailsPage({
         <DetailCard title="Agreement">
           <DetailRow label="Printed name" value={booking.printed_name} />
           <DetailRow label="Signed date" value={booking.signed_date} />
+          {booking.document_status !== "verified" ? (
+            <form action={markDocumentsVerifiedAction} className="mt-4">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+              >
+                Mark Documents Verified
+              </button>
+            </form>
+          ) : (
+            <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800">
+              Documents verified
+            </div>
+          )}
           {documentLinks.length ? (
             <div className="mt-4 space-y-2">
               {documentLinks.map((file) =>
