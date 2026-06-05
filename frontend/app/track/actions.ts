@@ -12,6 +12,7 @@ export type TrackBookingState = {
     rentalEndDate: string;
     bookingStatus: string;
     paymentStatus: string;
+    documentStatus: string;
   };
 };
 
@@ -51,6 +52,7 @@ export async function trackBookingAction(
       rental_end_date,
       booking_status,
       payment_status,
+      document_status,
       customers!inner (
         contact_number
       ),
@@ -91,6 +93,7 @@ export async function trackBookingAction(
       rentalEndDate: booking.rental_end_date,
       bookingStatus: booking.booking_status,
       paymentStatus: booking.payment_status,
+      documentStatus: booking.document_status,
     },
   };
 }

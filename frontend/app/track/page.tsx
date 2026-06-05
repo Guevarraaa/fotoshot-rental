@@ -10,8 +10,8 @@ export default function TrackBookingPage() {
         Check booking status
       </h1>
       <p className="mt-4 text-base leading-7 text-stone-600">
-        Sprint 1 includes the lookup UI placeholder. The secure Supabase lookup
-        will verify both reference number and phone number in a later sprint.
+        Enter your booking reference number and contact number to check your
+        booking, payment, and document review status.
       </p>
 
       <TrackBookingForm />

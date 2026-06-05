@@ -74,7 +74,18 @@ export function TrackBookingForm() {
               label="Payment status"
               value={formatStatus(state.booking.paymentStatus)}
             />
+            <StatusItem
+              label="Document status"
+              value={formatStatus(state.booking.documentStatus)}
+            />
           </div>
+          <p className="mt-4 rounded-md bg-white px-3 py-2 text-sm text-stone-700">
+            {getCustomerStatusMessage(
+              state.booking.bookingStatus,
+              state.booking.paymentStatus,
+              state.booking.documentStatus,
+            )}
+          </p>
         </div>
       ) : null}
 
@@ -103,4 +114,48 @@ function formatStatus(status: string) {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function getCustomerStatusMessage(
+  bookingStatus: string,
+  paymentStatus: string,
+  documentStatus: string,
+) {
+  if (documentStatus === "rejected") {
+    return "Your documents need review. Please contact FotoShot so we can help you resubmit the correct files.";
+  }
+
+  if (bookingStatus === "approved") {
+    return "Your booking is approved. Please follow the agreed pickup schedule and location.";
+  }
+
+  if (bookingStatus === "released") {
+    return "Your camera has been released. Please return it fully charged by the agreed return time.";
+  }
+
+  if (bookingStatus === "returned") {
+    return "Your camera has been returned. FotoShot is completing the final review.";
+  }
+
+  if (bookingStatus === "completed") {
+    return "Your rental is completed. Thank you for renting with FotoShot.";
+  }
+
+  if (bookingStatus === "cancelled") {
+    return "This booking has been cancelled. Please contact FotoShot if you need help.";
+  }
+
+  if (bookingStatus === "rejected") {
+    return "This booking was rejected. Please contact FotoShot for more details.";
+  }
+
+  if (paymentStatus !== "verified") {
+    return "Your booking is pending review. FotoShot will verify your payment and documents manually.";
+  }
+
+  if (documentStatus !== "verified") {
+    return "Your payment is verified. FotoShot is still reviewing your required documents.";
+  }
+
+  return "Payment and documents are verified. FotoShot will approve your booking after final review.";
 }
