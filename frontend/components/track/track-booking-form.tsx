@@ -79,13 +79,12 @@ export function TrackBookingForm() {
               value={formatStatus(state.booking.documentStatus)}
             />
           </div>
-          <p className="mt-4 rounded-md bg-white px-3 py-2 text-sm text-stone-700">
-            {getCustomerStatusMessage(
-              state.booking.bookingStatus,
-              state.booking.paymentStatus,
-              state.booking.documentStatus,
-            )}
-          </p>
+          <StatusMessage
+            bookingStatus={state.booking.bookingStatus}
+            paymentStatus={state.booking.paymentStatus}
+            documentStatus={state.booking.documentStatus}
+            referenceNumber={state.booking.referenceNumber}
+          />
         </div>
       ) : null}
 
@@ -116,15 +115,46 @@ function formatStatus(status: string) {
     .join(" ");
 }
 
+function StatusMessage({
+  bookingStatus,
+  paymentStatus,
+  documentStatus,
+  referenceNumber,
+}: {
+  bookingStatus: string;
+  paymentStatus: string;
+  documentStatus: string;
+  referenceNumber: string;
+}) {
+  if (documentStatus === "rejected") {
+    return (
+      <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-3 text-sm leading-6 text-red-800">
+        <p className="font-bold">Your documents need correction.</p>
+        <p className="mt-1">
+          Please contact FotoShot and include your booking reference number{" "}
+          <span className="font-bold">{referenceNumber}</span>. We will help you
+          resend the correct files.
+        </p>
+        <p className="mt-2">
+          Contact: +639128494056 | Instagram: @thefoto.shot | Facebook:
+          @Foto.Shot
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <p className="mt-4 rounded-md bg-white px-3 py-2 text-sm text-stone-700">
+      {getCustomerStatusMessage(bookingStatus, paymentStatus, documentStatus)}
+    </p>
+  );
+}
+
 function getCustomerStatusMessage(
   bookingStatus: string,
   paymentStatus: string,
   documentStatus: string,
 ) {
-  if (documentStatus === "rejected") {
-    return "Your documents need review. Please contact FotoShot so we can help you resubmit the correct files.";
-  }
-
   if (bookingStatus === "approved") {
     return "Your booking is approved. Please follow the agreed pickup schedule and location.";
   }
