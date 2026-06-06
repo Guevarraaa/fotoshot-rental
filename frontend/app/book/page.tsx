@@ -11,8 +11,9 @@ export default function BookPage() {
           Submit your rental request
         </h1>
         <p className="mt-4 text-base leading-7 text-stone-600">
-          Complete the form, upload the required documents, agree to the rental
-          terms, and upload your payment screenshot for GCash/Maya payments.
+          Complete the form and agree to the rental terms first. After
+          submission, FotoShot will show your booking reference number and the
+          upload sections for your payment screenshot and required documents.
           Status starts as Pending Review.
         </p>
       </div>
