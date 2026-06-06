@@ -54,9 +54,32 @@ export function BookingForm() {
         <h2 className="mt-2 text-2xl font-bold text-green-950">
           Booking submitted for review
         </h2>
-        <p className="mt-3 text-sm leading-6 text-green-900">
-          Your booking reference number is {state.referenceNumber}. Admin will verify your documents and payment manually.
-        </p>
+        <div className="mt-4 rounded-lg border border-green-200 bg-white p-4">
+          <p className="text-sm font-semibold text-stone-600">
+            Booking reference number
+          </p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-stone-950">
+            {state.referenceNumber}
+          </p>
+          <p className="mt-3 text-sm leading-6 text-stone-700">
+            Keep this reference number. Use it with your contact number on the
+            Track page to check your booking status.
+          </p>
+        </div>
+        <div className="mt-5 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm leading-6 text-yellow-900">
+          <p className="font-bold">Before closing this page:</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>Upload your GCash/Maya payment screenshot.</li>
+            <li>Upload all required renter documents.</li>
+            <li>
+              Wait for each upload section to show its uploaded confirmation.
+            </li>
+          </ol>
+          <p className="mt-3">
+            Your item is reserved only after FotoShot verifies payment,
+            documents, and approves the booking.
+          </p>
+        </div>
         {state.bookingId ? (
           <>
             <PaymentProofUploader bookingId={state.bookingId} />

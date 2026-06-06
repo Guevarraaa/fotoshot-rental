@@ -6,11 +6,11 @@ import {
   cancelBookingAction,
   markCompletedAction,
   markDocumentsVerifiedAction,
+  markPaymentVerifiedAction,
   markReleasedAction,
   markReturnedAction,
-  markPaymentVerifiedAction,
-  rejectDocumentsAction,
   rejectBookingAction,
+  rejectDocumentsAction,
 } from "./actions";
 
 type AdminBookingDetailsPageProps = {
@@ -115,6 +115,7 @@ export default async function AdminBookingDetailsPage({
   const studentInfo = Array.isArray(booking.student_information)
     ? booking.student_information[0]
     : booking.student_information;
+
   const bookingFiles = Array.isArray(booking.booking_files)
     ? booking.booking_files
     : [];
@@ -289,15 +290,21 @@ export default async function AdminBookingDetailsPage({
               No payment screenshot uploaded yet.
             </div>
           )}
-          <form action={markPaymentVerifiedAction} className="mt-4">
-            <input type="hidden" name="booking_id" value={booking.id} />
-            <button
-              type="submit"
-              className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
-            >
-              Mark Payment Verified
-            </button>
-          </form>
+          {booking.payment_status !== "verified" ? (
+            <form action={markPaymentVerifiedAction} className="mt-4">
+              <input type="hidden" name="booking_id" value={booking.id} />
+              <button
+                type="submit"
+                className="w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+              >
+                Mark Payment Verified
+              </button>
+            </form>
+          ) : (
+            <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-semibold text-green-800">
+              Payment verified
+            </div>
+          )}
         </DetailCard>
 
         <DetailCard title="Renter Information">
