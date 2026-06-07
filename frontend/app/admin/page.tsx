@@ -4,7 +4,27 @@ import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { bookingStatuses } from "@/lib/constants";
 
-export default async function AdminDashboardPage() {
+const dashboardFilters = [
+  { id: "all", label: "All" },
+  { id: "pending_review", label: "Pending Review" },
+  { id: "payment_submitted", label: "Payment Submitted" },
+  { id: "documents_rejected", label: "Documents Rejected" },
+  { id: "approved", label: "Approved" },
+  { id: "released", label: "Released" },
+  { id: "completed", label: "Completed" },
+] as const;
+
+type DashboardFilter = (typeof dashboardFilters)[number]["id"];
+
+type AdminDashboardPageProps = {
+  searchParams?: Promise<{
+    filter?: string;
+  }>;
+};
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: AdminDashboardPageProps) {
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
@@ -24,6 +44,9 @@ export default async function AdminDashboardPage() {
   if (adminError || !isAdmin) {
     redirect("/admin/login");
   }
+  const params = searchParams ? await searchParams : {};
+  const activeFilter = getDashboardFilter(params.filter);
+
     const { data: bookings } = await supabase
     .from("bookings")
     .select(
@@ -47,9 +70,13 @@ export default async function AdminDashboardPage() {
     `,
     )
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(50);
 
   const bookingRows = bookings ?? [];
+  const visibleBookingRows = filterBookings(bookingRows, activeFilter).slice(
+    0,
+    10,
+  );
 
   const pendingCount = bookingRows.filter(
     (booking) => booking.booking_status === "pending_review",
@@ -128,6 +155,21 @@ export default async function AdminDashboardPage() {
           <h2 className="text-xl font-bold text-stone-950">
             Latest bookings
           </h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {dashboardFilters.map((filter) => (
+              <Link
+                key={filter.id}
+                href={filter.id === "all" ? "/admin" : `/admin?filter=${filter.id}`}
+                className={`rounded-full px-3 py-2 text-sm font-semibold ${
+                  activeFilter === filter.id
+                    ? "bg-stone-950 text-white"
+                    : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                }`}
+              >
+                {filter.label}
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
@@ -143,8 +185,8 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {bookingRows.length ? (
-                bookingRows.map((booking) => {
+              {visibleBookingRows.length ? (
+                visibleBookingRows.map((booking) => {
                   const customer = Array.isArray(booking.customers)
                     ? booking.customers[0]
                     : booking.customers;
@@ -186,7 +228,7 @@ export default async function AdminDashboardPage() {
               ) : (
                 <tr className="border-t border-stone-200">
                   <td className="px-5 py-6 text-center text-stone-500" colSpan={7}>
-                    No bookings yet.
+                    No bookings found for this filter.
                   </td>
                 </tr>
               )}
@@ -226,6 +268,34 @@ function StatusPill({ status }: { status: string | null }) {
   }
 
   return <span className={`${baseClass} bg-yellow-50 text-yellow-700`}>Pending</span>;
+}
+
+function getDashboardFilter(filter?: string): DashboardFilter {
+  const match = dashboardFilters.find((item) => item.id === filter);
+
+  return match?.id ?? "all";
+}
+
+function filterBookings<T extends {
+  booking_status: string | null;
+  payment_status: string | null;
+  document_status: string | null;
+}>(bookings: T[], filter: DashboardFilter) {
+  if (filter === "all") {
+    return bookings;
+  }
+
+  if (filter === "payment_submitted") {
+    return bookings.filter(
+      (booking) => booking.payment_status === "payment_submitted",
+    );
+  }
+
+  if (filter === "documents_rejected") {
+    return bookings.filter((booking) => booking.document_status === "rejected");
+  }
+
+  return bookings.filter((booking) => booking.booking_status === filter);
 }
 
 function formatStatus(status: string | null) {
