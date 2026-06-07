@@ -19,6 +19,7 @@ type DashboardFilter = (typeof dashboardFilters)[number]["id"];
 type AdminDashboardPageProps = {
   searchParams?: Promise<{
     filter?: string;
+    search?: string;
   }>;
 };
 
@@ -46,6 +47,7 @@ export default async function AdminDashboardPage({
   }
   const params = searchParams ? await searchParams : {};
   const activeFilter = getDashboardFilter(params.filter);
+  const searchQuery = String(params.search ?? "").trim();
 
     const { data: bookings } = await supabase
     .from("bookings")
@@ -73,10 +75,10 @@ export default async function AdminDashboardPage({
     .limit(50);
 
   const bookingRows = bookings ?? [];
-  const visibleBookingRows = filterBookings(bookingRows, activeFilter).slice(
-    0,
-    10,
-  );
+  const visibleBookingRows = searchBookings(
+    filterBookings(bookingRows, activeFilter),
+    searchQuery,
+  ).slice(0, 10);
 
   const pendingCount = bookingRows.filter(
     (booking) => booking.booking_status === "pending_review",
@@ -155,11 +157,40 @@ export default async function AdminDashboardPage({
           <h2 className="text-xl font-bold text-stone-950">
             Latest bookings
           </h2>
+          <form className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
+            {activeFilter !== "all" ? (
+              <input type="hidden" name="filter" value={activeFilter} />
+            ) : null}
+            <label className="block">
+              <span className="sr-only">Search bookings</span>
+              <input
+                name="search"
+                type="search"
+                defaultValue={searchQuery}
+                placeholder="Search reference, customer, contact, or camera"
+                className="w-full rounded-md border border-stone-300 px-3 py-3 text-sm"
+              />
+            </label>
+            <button
+              type="submit"
+              className="rounded-md bg-stone-950 px-5 py-3 text-sm font-bold text-white hover:bg-stone-800"
+            >
+              Search
+            </button>
+          </form>
+          {searchQuery ? (
+            <Link
+              href={activeFilter === "all" ? "/admin" : `/admin?filter=${activeFilter}`}
+              className="mt-3 inline-block text-sm font-semibold text-stone-600 hover:text-stone-950"
+            >
+              Clear search
+            </Link>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {dashboardFilters.map((filter) => (
               <Link
                 key={filter.id}
-                href={filter.id === "all" ? "/admin" : `/admin?filter=${filter.id}`}
+                href={makeAdminFilterHref(filter.id, searchQuery)}
                 className={`rounded-full px-3 py-2 text-sm font-semibold ${
                   activeFilter === filter.id
                     ? "bg-stone-950 text-white"
@@ -296,6 +327,70 @@ function filterBookings<T extends {
   }
 
   return bookings.filter((booking) => booking.booking_status === filter);
+}
+
+function searchBookings<T extends {
+  reference_number: string | null;
+  customers:
+    | {
+        full_name: string | null;
+        contact_number: string | null;
+      }
+    | {
+        full_name: string | null;
+        contact_number: string | null;
+      }[]
+    | null;
+  cameras:
+    | {
+        name: string | null;
+      }
+    | {
+        name: string | null;
+      }[]
+    | null;
+}>(bookings: T[], query: string) {
+  const normalizedQuery = query.toLowerCase();
+
+  if (!normalizedQuery) {
+    return bookings;
+  }
+
+  return bookings.filter((booking) => {
+    const customer = Array.isArray(booking.customers)
+      ? booking.customers[0]
+      : booking.customers;
+    const camera = Array.isArray(booking.cameras)
+      ? booking.cameras[0]
+      : booking.cameras;
+    const searchableText = [
+      booking.reference_number,
+      customer?.full_name,
+      customer?.contact_number,
+      camera?.name,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(normalizedQuery);
+  });
+}
+
+function makeAdminFilterHref(filter: DashboardFilter, searchQuery: string) {
+  const params = new URLSearchParams();
+
+  if (filter !== "all") {
+    params.set("filter", filter);
+  }
+
+  if (searchQuery) {
+    params.set("search", searchQuery);
+  }
+
+  const queryString = params.toString();
+
+  return queryString ? `/admin?${queryString}` : "/admin";
 }
 
 function formatStatus(status: string | null) {
