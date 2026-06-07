@@ -11,6 +11,7 @@ import {
   markReturnedAction,
   rejectBookingAction,
   rejectDocumentsAction,
+  saveAdminNotesAction,
 } from "./actions";
 
 type AdminBookingDetailsPageProps = {
@@ -66,6 +67,7 @@ export default async function AdminBookingDetailsPage({
       pickup_location_text,
       printed_name,
       signed_date,
+      admin_notes,
       created_at,
       customers (
         full_name,
@@ -324,6 +326,30 @@ export default async function AdminBookingDetailsPage({
         <DetailCard title="Student Information">
           <DetailRow label="School" value={studentInfo?.school_name} />
           <DetailRow label="Year / course" value={studentInfo?.year_level_course} />
+        </DetailCard>
+
+        <DetailCard title="Admin Notes">
+          <form action={saveAdminNotesAction}>
+            <input type="hidden" name="booking_id" value={booking.id} />
+            <label className="block">
+              <span className="text-sm font-semibold text-stone-900">
+                Internal note
+              </span>
+              <textarea
+                name="admin_notes"
+                defaultValue={booking.admin_notes ?? ""}
+                rows={5}
+                placeholder="Example: Waiting for clearer ID photo, payment checked by admin, pickup reminder..."
+                className="mt-2 w-full rounded-md border border-stone-300 px-3 py-3 text-sm"
+              />
+            </label>
+            <button
+              type="submit"
+              className="mt-4 w-full rounded-md bg-stone-950 px-4 py-3 text-sm font-bold text-white hover:bg-stone-800"
+            >
+              Save Admin Note
+            </button>
+          </form>
         </DetailCard>
 
         <DetailCard title="Agreement">
