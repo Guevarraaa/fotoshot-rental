@@ -61,6 +61,7 @@ export default async function AdminDashboardPage({
       document_status,
       booking_status,
       total_amount,
+      admin_notes,
       created_at,
       customers (
         full_name,
@@ -228,7 +229,14 @@ export default async function AdminDashboardPage({
                   return (
                     <tr key={booking.id} className="border-t border-stone-200">
                       <td className="px-5 py-4 font-semibold text-stone-950">
-                        {booking.reference_number}
+                        <div className="flex flex-col gap-2">
+                          <span>{booking.reference_number}</span>
+                          {booking.admin_notes ? (
+                            <span className="w-fit rounded-full bg-blue-50 px-2 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
+                              Has note
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-5 py-4 text-stone-600">
                         {customer?.full_name ?? "Unknown renter"}
